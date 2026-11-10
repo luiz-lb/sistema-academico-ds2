@@ -1,9 +1,9 @@
 /*
  * CONTROLLER DO ALUNO
  *
- * Na versão 0.2 não existe mais o while com prompt().
- * Agora a página fica esperando o usuário enviar o formulário (evento submit)
- * e o Controller só reage a esse evento.
+ * Coordena a View e o Service.
+ * Na versão 0.3 o Controller não chama mais o Model direto:
+ * ele pede para o Service, e o Service usa o Model e o localStorage.
  */
 const AlunoController = {
 
@@ -16,13 +16,16 @@ const AlunoController = {
             AlunoController.cadastrar(dados);
         });
 
-        // Mostra a tabela vazia e o JSON "[]" logo no início
+        AlunoView.configurarBotaoLimpar(function () {
+            AlunoController.limparDados();
+        });
+
+        // Já mostra os alunos que estavam salvos no localStorage
         AlunoController.atualizarVisualizacao();
     },
 
-    // Manda os dados para o Model e decide o que a View vai mostrar
     cadastrar(dados) {
-        const resultado = AlunoModel.cadastrar(dados);
+        const resultado = AlunoService.cadastrar(dados);
 
         if (!resultado.sucesso) {
             AlunoView.exibirErro(resultado.mensagem);
@@ -34,9 +37,28 @@ const AlunoController = {
         AlunoController.atualizarVisualizacao();
     },
 
-    // Atualiza a tabela e o JSON com a lista atual do Model
+    // Apaga todos os alunos depois de confirmar com o usuário
+    limparDados() {
+        const alunos = AlunoService.listar();
+
+        if (alunos.length === 0) {
+            AlunoView.exibirErro("Não existem alunos para remover.");
+            return;
+        }
+
+        // Se o usuário clicar em Cancelar, não faz nada
+        if (!AlunoView.confirmarLimpeza()) {
+            return;
+        }
+
+        AlunoService.limpar();
+        AlunoView.exibirSucesso("Todos os alunos foram removidos.");
+        AlunoController.atualizarVisualizacao();
+    },
+
+    // Atualiza a tabela e o JSON com a lista salva no localStorage
     atualizarVisualizacao() {
-        const alunos = AlunoModel.listar();
+        const alunos = AlunoService.listar();
 
         AlunoView.exibirLista(alunos);
 

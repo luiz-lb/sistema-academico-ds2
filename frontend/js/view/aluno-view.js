@@ -1,9 +1,9 @@
 /*
  * VIEW DO ALUNO
  *
- * Na versão 0.2 a View deixou de usar prompt() e console
- * e passou a trabalhar com a página HTML (DOM):
+ * Desde a versão 0.2 a View trabalha com a página HTML (DOM):
  * lê o formulário, mostra mensagens, monta a tabela e mostra o JSON.
+ * Na versão 0.3 ganhou o botão "Limpar dados".
  *
  * Continua sem validar nada, quem valida é o Model.
  */
@@ -25,6 +25,7 @@ const AlunoView = {
         AlunoView.elementos.corpoTabela = document.getElementById("corpo-tabela-alunos");
         AlunoView.elementos.totalAlunos = document.getElementById("total-alunos");
         AlunoView.elementos.saidaJson = document.getElementById("saida-json");
+        AlunoView.elementos.botaoLimpar = document.getElementById("btn-limpar-dados");
     },
 
     // Registra o evento submit do formulário.
@@ -37,6 +38,18 @@ const AlunoView = {
             const dados = AlunoView.lerDados();
             aoEnviar(dados);
         });
+    },
+
+    // Registra o clique do botão "Limpar dados"
+    configurarBotaoLimpar(aoLimpar) {
+        AlunoView.elementos.botaoLimpar.addEventListener("click", function () {
+            aoLimpar();
+        });
+    },
+
+    // Pergunta antes de apagar tudo (OK = true, Cancelar = false)
+    confirmarLimpeza() {
+        return confirm("Deseja remover todos os alunos cadastrados?");
     },
 
     // Pega o que foi digitado em cada campo

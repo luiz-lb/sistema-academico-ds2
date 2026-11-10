@@ -10,12 +10,13 @@
     <link rel="stylesheet" href="./css/estilo.css">
 
     <!--
-        Ordem dos scripts: Model e View primeiro, Controller por último,
-        porque o Controller usa os outros dois.
+        Ordem dos scripts: Model, Service, View e por último o Controller,
+        porque o Service usa o Model e o Controller usa todos os outros.
         O defer faz o script rodar só depois que o HTML foi carregado
         e mantém essa ordem.
     -->
     <script src="./js/model/aluno-model.js" defer></script>
+    <script src="./js/service/aluno-service.js" defer></script>
     <script src="./js/view/aluno-view.js" defer></script>
     <script src="./js/controller/aluno-controller.js" defer></script>
 </head>
@@ -24,7 +25,7 @@
     <header class="cabecalho">
         <div class="container">
             <h1>Sistema Acadêmico DS II</h1>
-            <p>Versão 0.2 - cadastro de alunos com DOM e eventos</p>
+            <p>Versão 0.3 - cadastro de alunos com localStorage</p>
         </div>
     </header>
 
@@ -68,8 +69,15 @@
                     </div>
                 </div>
 
-                <!-- type="submit" dispara o evento submit do formulário -->
-                <button type="submit">Cadastrar aluno</button>
+                <div class="acoes-formulario">
+                    <!-- type="submit" dispara o evento submit do formulário -->
+                    <button type="submit">Cadastrar aluno</button>
+
+                    <!-- type="button" para NÃO enviar o formulário, só apagar os dados -->
+                    <button type="button" id="btn-limpar-dados" class="botao-secundario">
+                        Limpar dados
+                    </button>
+                </div>
             </form>
 
             <!-- Aqui a View escreve as mensagens de sucesso ou de erro -->

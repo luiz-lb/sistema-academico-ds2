@@ -179,3 +179,21 @@ pre {
         flex-direction: column;
     }
 }
+
+/* ---------- Botões do formulário (versão 0.3) ---------- */
+
+/* Deixa os dois botões lado a lado */
+.acoes-formulario {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+/* Botão cinza para diferenciar do botão principal */
+.botao-secundario {
+    background-color: #64748b;
+}
+
+.botao-secundario:hover {
+    background-color: #475569;
+}

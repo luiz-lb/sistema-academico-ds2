@@ -1,20 +1,22 @@
 /*
  * MODEL DO ALUNO
  *
- * Aqui ficam os dados dos alunos e as regras do cadastro
- * (campos obrigatórios, e-mail válido e RA sem repetir).
+ * Na versão 0.3 o Model não guarda mais o array de alunos.
+ * Quem guarda agora é o Service (no localStorage).
  *
- * O Model não usa prompt(), console.log() nem mexe no HTML.
- * Quem conversa com o usuário é a View.
+ * O Model ficou só com as regras:
+ * - arrumar os textos;
+ * - validar os campos e o e-mail;
+ * - verificar se o RA já existe;
+ * - gerar o próximo id;
+ * - criar o objeto aluno.
+ *
+ * Por isso alguns métodos recebem a lista de alunos como parâmetro.
  */
 const AlunoModel = {
 
-    // Lista dos alunos cadastrados.
-    // Fica só na memória do navegador: se atualizar a página, os dados somem.
-    alunos: [],
-
     // Tira os espaços do começo e do fim do texto.
-    // Se o valor vier null (ex: clicar em Cancelar no prompt), devolve "".
+    // Se o valor vier null ou undefined, devolve "".
     normalizarTexto(valor) {
         if (valor === null || valor === undefined) {
             return "";
@@ -28,28 +30,37 @@ const AlunoModel = {
         return email.includes("@") && email.includes(".");
     },
 
-    // Procura um aluno pelo RA.
-    // Se encontrar devolve o aluno, se não encontrar devolve undefined.
-    localizarPorRa(ra) {
-        return AlunoModel.alunos.find(aluno => aluno.ra === ra);
+    // Procura um aluno pelo RA dentro da lista recebida
+    localizarPorRa(alunos, ra) {
+        return alunos.find(aluno => aluno.ra === ra);
+    },
+
+    // Gera o próximo id: pega o maior id da lista e soma 1.
+    // (antes era length + 1, mas isso pode repetir id se algum aluno for removido)
+    gerarProximoId(alunos) {
+        if (alunos.length === 0) {
+            return 1;
+        }
+
+        const ids = alunos.map(aluno => aluno.id);
+        const maiorId = Math.max(...ids);
+
+        return maiorId + 1;
     },
 
     /*
-     * Cadastra um aluno.
-     *
-     * Recebe um objeto com ra, nome, email, curso e turma.
-     * Sempre devolve um objeto com o resultado:
+     * Valida os dados e cria o objeto aluno.
+     * Não salva nada, só devolve o resultado para o Service:
      * - deu erro:   { sucesso: false, mensagem: "..." }
      * - deu certo:  { sucesso: true, aluno: {...} }
      */
-    cadastrar(dados) {
+    criar(dados, alunos) {
         const ra = AlunoModel.normalizarTexto(dados.ra);
         const nome = AlunoModel.normalizarTexto(dados.nome);
         const email = AlunoModel.normalizarTexto(dados.email);
         const curso = AlunoModel.normalizarTexto(dados.curso);
         const turma = AlunoModel.normalizarTexto(dados.turma);
 
-        // Se qualquer campo estiver vazio, o cadastro é recusado
         if (ra === "" || nome === "" || email === "" || curso === "" || turma === "") {
             return {
                 sucesso: false,
@@ -64,8 +75,7 @@ const AlunoModel = {
             };
         }
 
-        // Não deixa cadastrar dois alunos com o mesmo RA
-        if (AlunoModel.localizarPorRa(ra)) {
+        if (AlunoModel.localizarPorRa(alunos, ra)) {
             return {
                 sucesso: false,
                 mensagem: "Já existe um aluno com esse RA."
@@ -73,27 +83,18 @@ const AlunoModel = {
         }
 
         const aluno = {
-            // Por enquanto o id é a quantidade de alunos + 1
-            id: AlunoModel.alunos.length + 1,
+            id: AlunoModel.gerarProximoId(alunos),
             ra: ra,
             nome: nome,
             email: email,
             curso: curso,
             turma: turma,
-            // Todo aluno novo começa ativo
             ativo: true
         };
-
-        AlunoModel.alunos.push(aluno);
 
         return {
             sucesso: true,
             aluno: aluno
         };
-    },
-
-    // Devolve uma cópia da lista (o spread ... cria um array novo)
-    listar() {
-        return [...AlunoModel.alunos];
     }
 };

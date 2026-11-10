@@ -1,69 +1,70 @@
 /*
  * CONTROLLER DO ALUNO
  *
- * Coordena a View e o Service.
- * Na versão 0.3 o Controller não chama mais o Model direto:
- * ele pede para o Service, e o Service usa o Model e o localStorage.
+ * Coordena o Model (validação inicial), o Service (API) e a View (tela).
+ *
+ * Fluxo do cadastro na versão 1.1:
+ * View lê o formulário -> Model valida -> Service manda POST para a API
+ * -> Service busca a lista atualizada (GET) -> View mostra a tabela.
+ *
+ * As funções são async porque o Service espera a resposta do servidor.
  */
 const AlunoController = {
 
-    // Prepara a página quando ela abre
-    iniciar() {
+    // Prepara a página e já busca os alunos que estão no servidor
+    async iniciar() {
         AlunoView.inicializar();
 
-        // Quando o formulário for enviado, a View chama esta função com os dados
         AlunoView.configurarFormulario(function (dados) {
             AlunoController.cadastrar(dados);
         });
 
-        AlunoView.configurarBotaoLimpar(function () {
-            AlunoController.limparDados();
-        });
+        AlunoView.exibirMensagem("Carregando alunos...", "informacao");
 
-        // Já mostra os alunos que estavam salvos no localStorage
-        AlunoController.atualizarVisualizacao();
+        try {
+            await AlunoController.atualizarVisualizacao();
+            AlunoView.exibirMensagem("Dados carregados com sucesso.", "sucesso");
+        } catch (erro) {
+            // Ex: backend desligado
+            AlunoView.exibirMensagem(erro.message, "erro");
+        }
     },
 
-    cadastrar(dados) {
-        const resultado = AlunoService.cadastrar(dados);
+    async cadastrar(dados) {
+        // Primeiro valida aqui no frontend, se tiver erro nem chama a API
+        const validacao = AlunoModel.validar(dados);
 
-        if (!resultado.sucesso) {
-            AlunoView.exibirErro(resultado.mensagem);
+        if (!validacao.sucesso) {
+            AlunoView.exibirMensagem(validacao.mensagem, "erro");
             return;
         }
 
-        AlunoView.exibirSucesso(`Aluno ${resultado.aluno.nome} cadastrado com sucesso.`);
-        AlunoView.limparFormulario();
-        AlunoController.atualizarVisualizacao();
+        AlunoView.alterarEstadoFormulario(true);
+        AlunoView.exibirMensagem("Enviando dados para o servidor...", "informacao");
+
+        try {
+            const resultado = await AlunoService.cadastrar(validacao.dados);
+
+            // Busca a lista de novo no servidor para a tabela ficar igual ao backend
+            await AlunoController.atualizarVisualizacao();
+
+            AlunoView.limparFormulario();
+            AlunoView.exibirMensagem(resultado.mensagem, "sucesso");
+        } catch (erro) {
+            // Erros que vieram da API (ex: RA duplicado) ou falha de conexão
+            AlunoView.exibirMensagem(erro.message, "erro");
+        } finally {
+            // finally roda sempre, dando certo ou errado: libera o botão
+            AlunoView.alterarEstadoFormulario(false);
+        }
     },
 
-    // Apaga todos os alunos depois de confirmar com o usuário
-    limparDados() {
-        const alunos = AlunoService.listar();
-
-        if (alunos.length === 0) {
-            AlunoView.exibirErro("Não existem alunos para remover.");
-            return;
-        }
-
-        // Se o usuário clicar em Cancelar, não faz nada
-        if (!AlunoView.confirmarLimpeza()) {
-            return;
-        }
-
-        AlunoService.limpar();
-        AlunoView.exibirSucesso("Todos os alunos foram removidos.");
-        AlunoController.atualizarVisualizacao();
-    },
-
-    // Atualiza a tabela e o JSON com a lista salva no localStorage
-    atualizarVisualizacao() {
-        const alunos = AlunoService.listar();
+    // Busca os alunos na API e atualiza a tabela e o JSON
+    async atualizarVisualizacao() {
+        const alunos = await AlunoService.listar();
 
         AlunoView.exibirLista(alunos);
-
-        const textoJson = JSON.stringify(alunos, null, 2);
-        AlunoView.exibirJson(textoJson);
+        AlunoView.exibirJson(alunos);
     }
 };
 

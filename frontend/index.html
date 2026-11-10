@@ -25,7 +25,7 @@
     <header class="cabecalho">
         <div class="container">
             <h1>Sistema Acadêmico DS II</h1>
-            <p>Versão 0.3 - cadastro de alunos com localStorage</p>
+            <p>Versão 1.1 - cadastro de alunos integrado com a API</p>
         </div>
     </header>
 
@@ -70,13 +70,12 @@
                 </div>
 
                 <div class="acoes-formulario">
-                    <!-- type="submit" dispara o evento submit do formulário -->
-                    <button type="submit">Cadastrar aluno</button>
-
-                    <!-- type="button" para NÃO enviar o formulário, só apagar os dados -->
-                    <button type="button" id="btn-limpar-dados" class="botao-secundario">
-                        Limpar dados
-                    </button>
+                    <!--
+                        type="submit" dispara o evento submit do formulário.
+                        O id é usado pela View para desabilitar o botão enquanto salva.
+                        (o botão "Limpar dados" saiu porque os dados agora ficam no backend)
+                    -->
+                    <button type="submit" id="botao-salvar">Cadastrar aluno</button>
                 </div>
             </form>
 
@@ -115,7 +114,7 @@
         <!-- Lista de alunos em formato JSON -->
         <section class="cartao">
             <h2>Representação em JSON</h2>
-            <p>A lista abaixo é atualizada após cada cadastro.</p>
+            <p>Lista recebida da API, atualizada após cada cadastro.</p>
 
             <pre id="saida-json">[]</pre>
         </section>

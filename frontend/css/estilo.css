@@ -180,20 +180,21 @@ pre {
     }
 }
 
-/* ---------- Botões do formulário (versão 0.3) ---------- */
+/* ---------- Botões do formulário ---------- */
 
-/* Deixa os dois botões lado a lado */
 .acoes-formulario {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
 }
 
-/* Botão cinza para diferenciar do botão principal */
-.botao-secundario {
-    background-color: #64748b;
+/* Botão desabilitado enquanto a requisição está sendo enviada (versão 1.1) */
+button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
 }
 
-.botao-secundario:hover {
-    background-color: #475569;
+/* Mensagem azul de "Carregando..." / "Enviando..." */
+.mensagem.informacao {
+    color: #1d4ed8;
 }

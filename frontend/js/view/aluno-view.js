@@ -1,19 +1,20 @@
 /*
  * VIEW DO ALUNO
  *
- * Desde a versão 0.2 a View trabalha com a página HTML (DOM):
- * lê o formulário, mostra mensagens, monta a tabela e mostra o JSON.
- * Na versão 0.3 ganhou o botão "Limpar dados".
+ * Cuida da página HTML (DOM): lê o formulário, mostra mensagens,
+ * monta a tabela e mostra o JSON. Não valida nada.
  *
- * Continua sem validar nada, quem valida é o Model.
+ * Na versão 1.1:
+ * - as mensagens ganharam o tipo "informacao" (ex: "Carregando alunos...");
+ * - o botão fica desabilitado enquanto espera a resposta da API;
+ * - o botão "Limpar dados" saiu, porque não usamos mais o localStorage.
  */
 const AlunoView = {
 
     // Guarda os elementos do HTML para não ficar buscando toda hora
     elementos: {},
 
-    // Busca os elementos da página pelo id.
-    // Só pode rodar depois que o HTML carregou (por isso o defer no index).
+    // Busca os elementos da página pelo id
     inicializar() {
         AlunoView.elementos.formulario = document.getElementById("form-aluno");
         AlunoView.elementos.ra = document.getElementById("ra");
@@ -21,15 +22,14 @@ const AlunoView = {
         AlunoView.elementos.email = document.getElementById("email");
         AlunoView.elementos.curso = document.getElementById("curso");
         AlunoView.elementos.turma = document.getElementById("turma");
+        AlunoView.elementos.botaoSalvar = document.getElementById("botao-salvar");
         AlunoView.elementos.mensagem = document.getElementById("mensagem");
         AlunoView.elementos.corpoTabela = document.getElementById("corpo-tabela-alunos");
         AlunoView.elementos.totalAlunos = document.getElementById("total-alunos");
         AlunoView.elementos.saidaJson = document.getElementById("saida-json");
-        AlunoView.elementos.botaoLimpar = document.getElementById("btn-limpar-dados");
     },
 
-    // Registra o evento submit do formulário.
-    // aoEnviar é a função que o Controller passa para receber os dados.
+    // Registra o evento submit e passa os dados digitados para o Controller
     configurarFormulario(aoEnviar) {
         AlunoView.elementos.formulario.addEventListener("submit", function (evento) {
             // Sem isso o navegador recarrega a página ao enviar o formulário
@@ -40,19 +40,6 @@ const AlunoView = {
         });
     },
 
-    // Registra o clique do botão "Limpar dados"
-    configurarBotaoLimpar(aoLimpar) {
-        AlunoView.elementos.botaoLimpar.addEventListener("click", function () {
-            aoLimpar();
-        });
-    },
-
-    // Pergunta antes de apagar tudo (OK = true, Cancelar = false)
-    confirmarLimpeza() {
-        return confirm("Deseja remover todos os alunos cadastrados?");
-    },
-
-    // Pega o que foi digitado em cada campo
     lerDados() {
         return {
             ra: AlunoView.elementos.ra.value,
@@ -63,24 +50,25 @@ const AlunoView = {
         };
     },
 
-    // A classe "sucesso" ou "erro" muda a cor da mensagem (ver estilo.css)
-    exibirSucesso(mensagem) {
+    // tipo pode ser "sucesso", "erro" ou "informacao" (cada um tem uma cor no CSS)
+    exibirMensagem(mensagem, tipo) {
         AlunoView.elementos.mensagem.textContent = mensagem;
-        AlunoView.elementos.mensagem.className = "mensagem sucesso";
+        AlunoView.elementos.mensagem.className = `mensagem ${tipo}`;
     },
 
-    exibirErro(mensagem) {
-        AlunoView.elementos.mensagem.textContent = mensagem;
-        AlunoView.elementos.mensagem.className = "mensagem erro";
-    },
-
-    // Limpa os campos e volta o cursor para o RA
     limparFormulario() {
         AlunoView.elementos.formulario.reset();
         AlunoView.elementos.ra.focus();
     },
 
-    // Monta a tabela de novo com a lista recebida
+    // Enquanto a requisição não volta, desabilita o botão
+    // para o usuário não clicar várias vezes e cadastrar repetido
+    alterarEstadoFormulario(processando) {
+        AlunoView.elementos.botaoSalvar.disabled = processando;
+        AlunoView.elementos.botaoSalvar.textContent = processando ? "Salvando..." : "Cadastrar aluno";
+    },
+
+    // Monta a tabela de novo com a lista recebida da API
     exibirLista(alunos) {
         const corpoTabela = AlunoView.elementos.corpoTabela;
 
@@ -127,8 +115,8 @@ const AlunoView = {
         });
     },
 
-    // Mostra o texto JSON dentro do <pre>
-    exibirJson(textoJson) {
-        AlunoView.elementos.saidaJson.textContent = textoJson;
+    // Mostra a lista em JSON dentro do <pre>
+    exibirJson(alunos) {
+        AlunoView.elementos.saidaJson.textContent = JSON.stringify(alunos, null, 2);
     }
 };

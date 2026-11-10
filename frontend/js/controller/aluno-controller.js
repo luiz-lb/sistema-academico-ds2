@@ -1,45 +1,47 @@
 /*
  * CONTROLLER DO ALUNO
  *
- * O Controller faz a ligação entre a View e o Model:
- * 1. pede os dados para a View;
- * 2. manda os dados para o Model cadastrar;
- * 3. olha o resultado e manda a View mostrar o aluno ou o erro.
- *
- * Ele não valida campos e não usa prompt() ou console.log() direto.
+ * Na versão 0.2 não existe mais o while com prompt().
+ * Agora a página fica esperando o usuário enviar o formulário (evento submit)
+ * e o Controller só reage a esse evento.
  */
 const AlunoController = {
 
+    // Prepara a página quando ela abre
     iniciar() {
-        // Controla o while. Começa true para cadastrar pelo menos uma vez.
-        let continuar = true;
+        AlunoView.inicializar();
 
-        while (continuar) {
-            const dados = AlunoView.lerDados();
-            const resultado = AlunoModel.cadastrar(dados);
+        // Quando o formulário for enviado, a View chama esta função com os dados
+        AlunoView.configurarFormulario(function (dados) {
+            AlunoController.cadastrar(dados);
+        });
 
-            if (resultado.sucesso) {
-                AlunoView.exibirAluno(resultado.aluno);
-            } else {
-                AlunoView.exibirErro(resultado.mensagem);
-            }
+        // Mostra a tabela vazia e o JSON "[]" logo no início
+        AlunoController.atualizarVisualizacao();
+    },
 
-            // Se o usuário clicar em Cancelar, o laço termina
-            continuar = AlunoView.perguntarNovoCadastro();
+    // Manda os dados para o Model e decide o que a View vai mostrar
+    cadastrar(dados) {
+        const resultado = AlunoModel.cadastrar(dados);
+
+        if (!resultado.sucesso) {
+            AlunoView.exibirErro(resultado.mensagem);
+            return;
         }
 
-        // Depois do while, mostra todos os alunos cadastrados
+        AlunoView.exibirSucesso(`Aluno ${resultado.aluno.nome} cadastrado com sucesso.`);
+        AlunoView.limparFormulario();
+        AlunoController.atualizarVisualizacao();
+    },
+
+    // Atualiza a tabela e o JSON com a lista atual do Model
+    atualizarVisualizacao() {
         const alunos = AlunoModel.listar();
+
         AlunoView.exibirLista(alunos);
 
-        // Converte o array de objetos em texto JSON
-        // (null = sem filtro, 2 = espaços de indentação)
         const textoJson = JSON.stringify(alunos, null, 2);
         AlunoView.exibirJson(textoJson);
-
-        // Converte o texto JSON de volta em array de objetos
-        const dadosRecuperados = JSON.parse(textoJson);
-        AlunoView.exibirDadosRecuperados(dadosRecuperados);
     }
 };
 

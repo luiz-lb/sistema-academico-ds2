@@ -21,13 +21,96 @@
 </head>
 
 <body>
-    <main>
-        <h1>Sistema Acadêmico DS II</h1>
+    <header class="cabecalho">
+        <div class="container">
+            <h1>Sistema Acadêmico DS II</h1>
+            <p>Versão 0.2 - cadastro de alunos com DOM e eventos</p>
+        </div>
+    </header>
 
-        <p>Primeira versão do sistema utilizando MVC e JSON.</p>
+    <main class="container">
 
-        <!-- Nesta versão a entrada é por prompt() e a saída é no console -->
-        <p>Abra o console do navegador (F12) para acompanhar a execução.</p>
+        <!-- Formulário de cadastro -->
+        <section class="cartao">
+            <h2>Cadastro de aluno</h2>
+            <p>Preencha os campos abaixo para cadastrar um aluno.</p>
+
+            <!--
+                novalidate desliga a validação automática do navegador,
+                assim quem valida os dados é o nosso Model.
+                Os ids dos campos são usados pela View para ler os valores.
+            -->
+            <form id="form-aluno" novalidate>
+                <div class="grade-formulario">
+                    <div class="campo">
+                        <label for="ra">RA</label>
+                        <input type="text" id="ra" name="ra" placeholder="Exemplo: 2026001" required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="nome">Nome</label>
+                        <input type="text" id="nome" name="nome" placeholder="Nome completo" required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="email">E-mail</label>
+                        <input type="email" id="email" name="email" placeholder="aluno@email.com" required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="curso">Curso</label>
+                        <input type="text" id="curso" name="curso" placeholder="Exemplo: SI" required>
+                    </div>
+
+                    <div class="campo">
+                        <label for="turma">Turma</label>
+                        <input type="text" id="turma" name="turma" placeholder="Exemplo: 5 SI" required>
+                    </div>
+                </div>
+
+                <!-- type="submit" dispara o evento submit do formulário -->
+                <button type="submit">Cadastrar aluno</button>
+            </form>
+
+            <!-- Aqui a View escreve as mensagens de sucesso ou de erro -->
+            <div id="mensagem" class="mensagem"></div>
+        </section>
+
+        <!-- Tabela com os alunos cadastrados -->
+        <section class="cartao">
+            <div class="titulo-secao">
+                <h2>Alunos cadastrados</h2>
+                <p id="total-alunos">Total: 0</p>
+            </div>
+
+            <!-- Essa div deixa rolar a tabela para o lado em telas pequenas -->
+            <div class="tabela-responsiva">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>RA</th>
+                            <th>Nome</th>
+                            <th>E-mail</th>
+                            <th>Curso</th>
+                            <th>Turma</th>
+                            <th>Situação</th>
+                        </tr>
+                    </thead>
+
+                    <!-- As linhas são criadas pela View com JavaScript -->
+                    <tbody id="corpo-tabela-alunos"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Lista de alunos em formato JSON -->
+        <section class="cartao">
+            <h2>Representação em JSON</h2>
+            <p>A lista abaixo é atualizada após cada cadastro.</p>
+
+            <pre id="saida-json">[]</pre>
+        </section>
     </main>
 </body>
 

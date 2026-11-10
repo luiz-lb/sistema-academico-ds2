@@ -15,5 +15,9 @@
     "json"
   ],
   "author": "Luiz Matheus Bezerra da Silva",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.3.0"
+  }
 }

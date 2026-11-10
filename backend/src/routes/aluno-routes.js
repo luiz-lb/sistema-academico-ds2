@@ -1,45 +1,22 @@
 /*
- * ROTAS
+ * ROTAS DE ALUNOS
  *
- * Uma rota é o método HTTP + o caminho (ex: GET /api/alunos).
- * Aqui só decidimos qual função do Controller vai atender cada requisição,
- * as regras ficam no Model.
+ * Com o Express não precisa mais ficar comparando método e caminho com if.
+ * O express.Router() é um "mini módulo" de rotas.
+ *
+ * No app.js o router foi registrado em "/api/alunos", então:
+ * router.get("/")  -> GET  /api/alunos
+ * router.post("/") -> POST /api/alunos
  */
+import express from "express";
 import AlunoController from "../controller/aluno-controller.js";
-import { enviarJson, enviarSemConteudo } from "../utils/http.js";
 
-// Devolve true se encontrou a rota e false se não existe
-export async function tratarRotas(req, res) {
-    // req.url tem só o caminho (/api/alunos), o URL separa o pathname
-    const url = new URL(req.url, `http://${req.headers.host || "localhost"}`);
-    const caminho = url.pathname;
-    const metodo = req.method;
+const router = express.Router();
 
-    // O navegador manda um OPTIONS antes do POST por causa do CORS
-    if (metodo === "OPTIONS") {
-        enviarSemConteudo(res);
-        return true;
-    }
+// Lista os alunos
+router.get("/", AlunoController.listar);
 
-    // Rota para testar se o servidor está no ar
-    if (metodo === "GET" && caminho === "/api/health") {
-        enviarJson(res, 200, {
-            status: "ok",
-            mensagem: "Servidor funcionando."
-        });
-        return true;
-    }
+// Cadastra um aluno
+router.post("/", AlunoController.cadastrar);
 
-    // Mesmo caminho, métodos diferentes: GET lista e POST cadastra
-    if (metodo === "GET" && caminho === "/api/alunos") {
-        AlunoController.listar(req, res);
-        return true;
-    }
-
-    if (metodo === "POST" && caminho === "/api/alunos") {
-        await AlunoController.cadastrar(req, res);
-        return true;
-    }
-
-    return false;
-}
+export default router;

@@ -1,0 +1,100 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-11-10T12:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v13.3.0",
+  "resources": [
+    {
+      "_id": "wrk_sistema_academico",
+      "_type": "workspace",
+      "parentId": null,
+      "name": "Sistema Acadêmico DS II",
+      "description": "",
+      "scope": "collection"
+    },
+    {
+      "_id": "env_base",
+      "_type": "environment",
+      "parentId": "wrk_sistema_academico",
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:3000"
+      }
+    },
+    {
+      "_id": "fld_01_sistema",
+      "_type": "request_group",
+      "parentId": "wrk_sistema_academico",
+      "name": "01 - Sistema",
+      "metaSortKey": 1
+    },
+    {
+      "_id": "fld_02_alunos",
+      "_type": "request_group",
+      "parentId": "wrk_sistema_academico",
+      "name": "02 - Alunos",
+      "metaSortKey": 2
+    },
+    {
+      "_id": "req_verificar_servidor",
+      "_type": "request",
+      "parentId": "fld_01_sistema",
+      "name": "Verificar servidor",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/health",
+      "body": {},
+      "headers": [],
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_listar_alunos",
+      "_type": "request",
+      "parentId": "fld_02_alunos",
+      "name": "Listar alunos",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/alunos",
+      "body": {},
+      "headers": [],
+      "metaSortKey": 1
+    },
+    {
+      "_id": "req_cadastrar_aluno",
+      "_type": "request",
+      "parentId": "fld_02_alunos",
+      "name": "Cadastrar aluno",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/alunos",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"ra\": \"2026001\",\n  \"nome\": \"Luiz Matheus\",\n  \"email\": \"luiz@email.com\",\n  \"curso\": \"SI\",\n  \"turma\": \"5 SI\"\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "metaSortKey": 2
+    },
+    {
+      "_id": "req_cadastrar_ra_duplicado",
+      "_type": "request",
+      "parentId": "fld_02_alunos",
+      "name": "Cadastrar RA duplicado",
+      "description": "Enviar depois do 'Cadastrar aluno'. O RA 2026001 já existe, a API deve responder 409 Conflict.",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/alunos",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"ra\": \"2026001\",\n  \"nome\": \"Outro Aluno\",\n  \"email\": \"outro@email.com\",\n  \"curso\": \"SI\",\n  \"turma\": \"5 SI\"\n}"
+      },
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "metaSortKey": 3
+    }
+  ]
+}
